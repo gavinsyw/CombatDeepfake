@@ -12,7 +12,7 @@ contract Anti_Deepfake {
         address owner;
         string info;            // additional information about the video
         bytes32 IPFS_hash;      // the hash of the video on IPFS
-        address contract_address;
+        bytes32 contract_address;
         string metadata;        
         uint256 timestamp;
     }
@@ -51,9 +51,9 @@ contract Anti_Deepfake {
     event ArtistRequestRegistered(address artist, bytes32 IPFS_hash);
     event PermissionGranted(string info, address artist);
     event PermissionDenied(string info, address artist);
-    event AttestationRequest(string info, address contract_address);
-    event AttestationGranted(string info, address contract_address);
-    event AttestationDenied(string info, address contract_address);
+    event AttestationRequest(string info, bytes32 contract_address);
+    event AttestationGranted(string info, bytes32 contract_address);
+    event AttestationDenied(string info, bytes32 contract_address);
     event ArtistRequestingRecheck(address artist);
     event RecheckGranted(string info, address artist);
     event RecheckDenied(string info, address artist);
@@ -71,7 +71,7 @@ contract Anti_Deepfake {
         recent_artist = msg.sender;
     }
     
-    function updateProvenanceData(string memory info, bytes32 hash, string memory metadata, address contract_addr, address owner_addr) IsOwner public {
+    function updateProvenanceData(string memory info, bytes32 hash, string memory metadata, bytes32 contract_addr, address owner_addr) IsOwner public {
         parent = true;
         parent_video.owner = owner_addr;
         parent_video.info = info;
@@ -152,13 +152,13 @@ contract Anti_Deepfake {
     }
     
     //this function is called by the artist after getting an approval and creating a child SC 
-    function AttestSC(bytes32 hash, address contract_addr) NotOwner public{
+    function AttestSC(bytes32 hash, bytes32 contract_addr) NotOwner public{
         require(Granted_Permissions[hash].state == artistState.GrantedPermission);//requires state to be granted
         AttestationRequest("Address of child: " , contract_addr);
         Granted_Permissions[hash].state = artistState.SentAttestationRequest;
     }
     
-    function GrantAttestation(bool result, string memory infor, bytes32 hash, string memory meta, address contract_addr) IsOwner public{
+    function GrantAttestation(bool result, string memory infor, bytes32 hash, string memory meta, bytes32 contract_addr) IsOwner public{
     require(Granted_Permissions[hash].state == artistState.SentAttestationRequest);
         if(result){
          Granted_Permission_ChildVideos[hash].owner = msg.sender;//save all info as new entry
